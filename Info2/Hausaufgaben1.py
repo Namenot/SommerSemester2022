@@ -242,20 +242,60 @@ def measure_time(method, argument):
 
 def eratosthenes(ds):
     """ Your code here """
-    return
+    
+    for i in ds:
+
+        if i.data < 2:
+            continue
+
+        for k in ds:
+            if k.data % i.data == 0 and k.data > i.data:
+                ds.remove(k.data)
+
+    return ds
 
 def eratosthenes_fast(n):
     """ Your code here """
-    return
+    dllist = DoublyLinkedList()
+
+    # fill dllist (n + 1 to include the highest index which would otherwise vanish)
+    for i in range(2, n+1):
+        dllist.append(i)
+    
+    eratosthenes(dllist)
+
+    return dllist
 
 def eratosthenes_slow(n):
     """ Your code here """
-    return
+
+    darray = DynamicArray()
+
+    # fill darray (n + 1 to include the highest index which would otherwise vanish)
+    for i in range(2, n+1):
+        darray.append(i)
+    
+    eratosthenes(darray)
+
+    return darray
     
 def prime_factors(n):
     """ Your code here """
-    return
+
+    primes = eratosthenes_fast(n)
+    prifacts = DoublyLinkedList()
+
+    while primes.contains(n) == False and n > 1:
+        for i in primes:
+            while n % i.data == 0:
+                n /= i.data
+                prifacts.append(i.data)
+
+    return prifacts
             
-matrikelnummern = [] # Enter your Matrikelnummer here
+matrikelnummern = [108018266786] # Enter your Matrikelnummer here
                      # for example matrikelnummern = [123] for one student 
                      # or matrikelnummern = [123, 456] for two students
+
+print(measure_time(eratosthenes_fast,1000))
+print(measure_time(eratosthenes_slow,1000))
