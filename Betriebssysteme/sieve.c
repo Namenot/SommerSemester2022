@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-//quick push test
-
 int main(int argc, char **argv)
 {
 
