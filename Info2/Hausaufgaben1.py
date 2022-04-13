@@ -292,10 +292,10 @@ def prime_factors(n):
                 prifacts.append(i.data)
 
     return prifacts
-            
-matrikelnummern = [108018266786] # Enter your Matrikelnummer here
-                     # for example matrikelnummern = [123] for one student 
-                     # or matrikelnummern = [123, 456] for two students
 
 print(measure_time(eratosthenes_fast,1000))
 print(measure_time(eratosthenes_slow,1000))
+
+matrikelnummern = [108018266786] # Enter your Matrikelnummer here
+                     # for example matrikelnummern = [123] for one student 
+                     # or matrikelnummern = [123, 456] for two students
