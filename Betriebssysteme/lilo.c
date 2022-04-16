@@ -40,37 +40,39 @@ static int insertElement(int value) {
 
 
     slinkedlist *iter = newList; // iterator pointer that i can modify without destroying the list
-    slinkedlist *newElem = malloc(sizeof(struct slinkedlist)); // new element
-
-    // fill the new element
-    newElem->value = value;
-    newElem->next = NULL;
+    slinkedlist **assignmentptr = &newList; // ptr that will point to the place that we want to paste newElem into
 
     // if we have a first element we can work with that
-    if(iter != NULL)
+    if(newList != NULL)
     {
         while(iter->next != NULL)
         {
             // if the value exists we dont inssert as we dont want doublicates
             if(iter->value == value)
             {
-                free(newElem);
                 return -1;
             }
             // iterate to the last element that doenst have a next element yet
             iter = iter->next;
         }
 
-        // assign the newly created element to the next in line
-        iter->next = newElem;
+        // overwrite the ptr in
+        assignmentptr = &iter->next;
+    }
 
-    }
-    else
-    {
-        // if newlist is still not assigned
-        // assign it and end the process
-        newList = newElem;
-    }
+    // if the function hasn't errored yet we now can create a new list entry and allocate memory to it
+    slinkedlist *newElem = malloc(sizeof(struct slinkedlist)); // the new list entry
+
+    // was memory allocation successfull?
+    if(newElem == NULL)
+        return -1;
+
+    // fill the new list entry 
+    newElem->value = value;
+    newElem->next = NULL;
+
+    // finally insert the new element into the list
+    *assignmentptr = newElem;
 
 	return 0;
 }
@@ -81,8 +83,8 @@ static int removeElement(void) {
     // NULL means that no the list is empty thus we dont have any "next element"
     // if an element is the last in the list it points to the NULL pointer
     // as long as we only add new element via the insert function this works
-    // however this is really memory unsave if someone would insert their own element 
-    // without pointing the next element to 0
+    // however this is really memory unsave if someone would implement their own insertelement 
+    // without pointing the next element to NULL
     if(newList != NULL)
     {
         slinkedlist *updateptr;
@@ -100,6 +102,10 @@ int main (int argc, char* argv[]) {
 	printf("insert 11: %d\n", insertElement(11));
 	printf("insert 23: %d\n", insertElement(23));
 	printf("insert 11: %d\n", insertElement(11));
+    printf("insert 12: %d\n", insertElement(12));
+    printf("insert 14: %d\n", insertElement(14));
+    printf("insert 27: %d\n", insertElement(27));
+    printf("insert 16: %d\n", insertElement(16));
 
     printList();
 
@@ -108,11 +114,11 @@ int main (int argc, char* argv[]) {
 
 	// TODO: add more tests
 
-    printf("remove: %d\n", removeElement());
-	printf("remove: %d\n", removeElement());
+    //printf("remove: %d\n", removeElement());
+	//printf("remove: %d\n", removeElement());
 
-    printf("remove: %d\n", removeElement());
-	printf("remove: %d\n", removeElement());
+    //printf("remove: %d\n", removeElement());
+	//printf("remove: %d\n", removeElement());
 
     printList();
 
