@@ -9,8 +9,19 @@ struct slinkedlist
 };
 
 typedef struct slinkedlist slinkedlist;
-
 slinkedlist *newList = NULL;
+
+
+void printList()
+{
+    slinkedlist *iter = newList; // iterator pointer that allows me to go through the list
+    while(iter != NULL)
+    {
+        printf(":%d ", iter->value);
+        iter = iter->next;
+    }
+    printf("\n");
+}
 
 static int insertElement(int value) {
 	// TODO: implement me!
@@ -35,52 +46,53 @@ static int insertElement(int value) {
     newElem->value = value;
     newElem->next = NULL;
 
-    // if newlist is still not assigned
-    // assign it and end the process
-    if(iter == NULL)
-    {
-        newList = newElem;
-        return 0;
-    }
-
     // if we have a first element we can work with that
-    while(iter->next != NULL)
+    if(iter != NULL)
     {
-        // if the value exists we dont inssert as we dont want doublicates
-        if(iter->value == value)
+        while(iter->next != NULL)
         {
-            free(newElem);
-            return -1;
+            // if the value exists we dont inssert as we dont want doublicates
+            if(iter->value == value)
+            {
+                free(newElem);
+                return -1;
+            }
+            // iterate to the last element that doenst have a next element yet
+            iter = iter->next;
         }
-        // iterate to the last element that doenst have a next element yet
-        iter = iter->next;
-    }
 
-    // assign the newly created element to the next in line
-    iter->next = newElem;
+        // assign the newly created element to the next in line
+        iter->next = newElem;
+
+    }
+    else
+    {
+        // if newlist is still not assigned
+        // assign it and end the process
+        newList = newElem;
+    }
 
 	return 0;
 }
 
 static int removeElement(void) {
 	// TODO: implement me!
+
+    // NULL means that no the list is empty thus we dont have any "next element"
+    // if an element is the last in the list it points to the NULL pointer
+    // as long as we only add new element via the insert function this works
+    // however this is really memory unsave if someone would insert their own element 
+    // without pointing the next element to 0
     if(newList != NULL)
     {
-        newList = newList->next;
+        slinkedlist *updateptr;
+        updateptr = newList->next; // save the next pointer location 
+        free(newList);             // free the memory of the old 1st element
+        newList = updateptr;       // assign the new first element
     }
 	return 0;
 }
 
-void printList()
-{
-    slinkedlist *iter = newList; // iterator pointer that allows me to go through the list
-    while(iter != NULL)
-    {
-        printf(":%d ", iter->value);
-        iter = iter->next;
-    }
-    printf("\n");
-}
 
 int main (int argc, char* argv[]) {
 
@@ -95,6 +107,13 @@ int main (int argc, char* argv[]) {
 	printf("remove: %d\n", removeElement());
 
 	// TODO: add more tests
+
+    printf("remove: %d\n", removeElement());
+	printf("remove: %d\n", removeElement());
+
+    printf("remove: %d\n", removeElement());
+	printf("remove: %d\n", removeElement());
+
     printList();
 
 	exit(EXIT_SUCCESS);
