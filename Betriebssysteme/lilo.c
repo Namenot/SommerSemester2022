@@ -71,7 +71,7 @@ static int insertElement(int value) {
     // finally insert the new element into the list
     *assignmentptr = newElem;
 
-	return 0;
+	return value;
 }
 
 static int removeElement(void) {
@@ -82,14 +82,17 @@ static int removeElement(void) {
     // as long as we only add new element via the insert function this works
     // however this is really memory unsave if someone would implement their own insertelement 
     // without pointing the next element to NULL
+    int outval = -1;
+
     if(newList != NULL)
     {
+        outval = newList->value;
         slinkedelement *updateptr;
         updateptr = newList->next; // save the next pointer location 
         free(newList);             // free the memory of the old 1st element
         newList = updateptr;       // assign the new first element
     }
-	return 0;
+	return outval;
 }
 
 
@@ -97,26 +100,33 @@ int main (int argc, char* argv[]) {
 
 	printf("insert 47: %d\n", insertElement(47));
 	printf("insert 11: %d\n", insertElement(11));
-	printf("insert 23: %d\n", insertElement(23));
+    printf("insert 23: %d\n", insertElement(23));
 	printf("insert 11: %d\n", insertElement(11));
-    printf("insert 12: %d\n", insertElement(12));
-    printf("insert 14: %d\n", insertElement(14));
-    printf("insert 27: %d\n", insertElement(27));
-    printf("insert 16: %d\n", insertElement(16));
-
-    printList();
 
 	printf("remove: %d\n", removeElement());
 	printf("remove: %d\n", removeElement());
 
 	// TODO: add more tests
 
-    //printf("remove: %d\n", removeElement());
-	//printf("remove: %d\n", removeElement());
+    printList();
 
-    //printf("remove: %d\n", removeElement());
-	//printf("remove: %d\n", removeElement());
+    printf("insert 12: %d\n", insertElement(12));
+    printf("insert 14: %d\n", insertElement(14));
+    printf("insert 27: %d\n", insertElement(27));
+    printf("insert 16: %d\n", insertElement(16));
+    
+    printList();
 
+    printf("remove: %d\n", removeElement());
+    printf("remove: %d\n", removeElement());
+
+    /*
+    printf("remove: %d\n", removeElement());
+	printf("remove: %d\n", removeElement());
+
+    printf("remove: %d\n", removeElement());
+	printf("remove: %d\n", removeElement());
+    */
     printList();
 
 	exit(EXIT_SUCCESS);
