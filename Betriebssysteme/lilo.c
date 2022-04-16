@@ -2,19 +2,26 @@
 #include <stdlib.h>
 
 // TODO: structs, global variables, etc.
-struct slinkedlist
+// struct that defines what each element in the list looks like
+struct slinkedelement
 {
     int value;
-    struct slinkedlist *next;
+    struct slinkedelement *next;
 };
 
-typedef struct slinkedlist slinkedlist;
-slinkedlist *newList = NULL;
+// create a type so that i dont have to type struct slinkedelement all the time
+typedef struct slinkedelement slinkedelement;
 
+// list head the we initiate to NULL (this is really important as the NULL default is used to check if the list is empty)
+// although the compiler is smart enough to do this on its own i wouldnt remove the = NULL in case this is being used 
+// on a different compiler later on
+slinkedelement *newList = NULL; 
 
+// helper function that prints the contents of the list
+// (only used for convienience)
 void printList()
 {
-    slinkedlist *iter = newList; // iterator pointer that allows me to go through the list
+    slinkedelement *iter = newList; // iterator pointer that allows me to go through the list
     while(iter != NULL)
     {
         printf(":%d ", iter->value);
@@ -26,21 +33,12 @@ void printList()
 static int insertElement(int value) {
 	// TODO: implement me!
 
-    // everything about this is disgusting
-    // why am i doing this
-    // i kinda hate myself now
-
-    // i guess this works
-    // but i need to improove the control flow (ALOT!!!!)
-
-
-    // we cant not insert negative numbers
+    // we can't insert negative numbers
     if(value < 0)
         return -1;
 
-
-    slinkedlist *iter = newList; // iterator pointer that i can modify without destroying the list
-    slinkedlist **assignmentptr = &newList; // ptr that will point to the place that we want to paste newElem into
+    slinkedelement *iter = newList; // iterator pointer that i can modify without destroying the list
+    slinkedelement **assignmentptr = &newList; // ptr that will point to the place that we want to paste newElem into
 
     // if we have a first element we can work with that
     if(newList != NULL)
@@ -49,9 +47,8 @@ static int insertElement(int value) {
         {
             // if the value exists we dont inssert as we dont want doublicates
             if(iter->value == value)
-            {
                 return -1;
-            }
+
             // iterate to the last element that doenst have a next element yet
             iter = iter->next;
         }
@@ -61,7 +58,7 @@ static int insertElement(int value) {
     }
 
     // if the function hasn't errored yet we now can create a new list entry and allocate memory to it
-    slinkedlist *newElem = malloc(sizeof(struct slinkedlist)); // the new list entry
+    slinkedelement *newElem = malloc(sizeof(slinkedelement)); // the new list entry
 
     // was memory allocation successfull?
     if(newElem == NULL)
@@ -87,7 +84,7 @@ static int removeElement(void) {
     // without pointing the next element to NULL
     if(newList != NULL)
     {
-        slinkedlist *updateptr;
+        slinkedelement *updateptr;
         updateptr = newList->next; // save the next pointer location 
         free(newList);             // free the memory of the old 1st element
         newList = updateptr;       // assign the new first element
