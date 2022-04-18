@@ -77,21 +77,20 @@ static int insertElement(int value) {
 static int removeElement(void) {
 	// TODO: implement me!
 
-    // NULL means that no the list is empty thus we dont have any "next element"
+    // NULL means that the list is empty thus we dont have any "next element"
     // if an element is the last in the list it points to the NULL pointer
-    // as long as we only add new element via the insert function this works
+    // as long as we only add new elements via the insert function this works
     // however this is really memory unsave if someone would implement their own insertelement 
     // without pointing the next element to NULL
-    int outval = -1;
 
-    if(newList != NULL)
-    {
-        outval = newList->value;
-        slinkedelement *updateptr;
-        updateptr = newList->next; // save the next pointer location 
-        free(newList);             // free the memory of the old 1st element
-        newList = updateptr;       // assign the new first element
-    }
+    if(newList == NULL)
+        return -1;
+    
+    int outval = newList->value;                // save the value of the removed element
+    slinkedelement *updateptr = newList->next;  // save the next pointer location
+    free(newList);                              // free the memory of the old 1st element
+    newList = updateptr;                        // assign the new first element
+    
 	return outval;
 }
 
