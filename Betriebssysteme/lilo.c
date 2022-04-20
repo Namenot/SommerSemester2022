@@ -119,13 +119,6 @@ int main (int argc, char* argv[]) {
     printf("remove: %d\n", removeElement());
     printf("remove: %d\n", removeElement());
 
-    /*
-    printf("remove: %d\n", removeElement());
-	printf("remove: %d\n", removeElement());
-
-    printf("remove: %d\n", removeElement());
-	printf("remove: %d\n", removeElement());
-    */
     printList();
 
 	exit(EXIT_SUCCESS);
