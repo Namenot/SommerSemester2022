@@ -43,6 +43,6 @@ def quick_sort_rand(s):
 quick_sort_faster = False
 merge_sort_faster = False
 
-matrikelnummern = [] # Enter your Matrikelnummer here
+matrikelnummern = [108018266786] # Enter your Matrikelnummer here
                      # for example matrikelnummern = [123] for one student 
                      # or matrikelnummern = [123, 456] for two students
