@@ -47,10 +47,10 @@ if __name__ == "__main__":
     timekeeperM = []
 
     for i in range(0, 20):
-        n = random.randint(1000, 100000)
-        k = random.randint(1000, 100000)
+        n = random.randint(1, 10)
+        k = random.randint(1, 10)
 
-        qarr1 = [random.randint(1000,k) for i in range(0, n)]
+        qarr1 = [random.randint(1,k) for i in range(0, n)]
         marr1 = qarr1.copy()
 
         print("this is the ", i, "iteration")
