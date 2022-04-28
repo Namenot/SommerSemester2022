@@ -38,10 +38,10 @@ def bucket_sort(s, n):
     
     returns s sorted in ascending order by first elements of tuples """
 
-    buckets = [[]for i in range(0, n)]
+    buckets = [[]for i in range(1, n)]
 
     for i in s:
-        buckets[i[0]].append(i)
+        buckets[i[0]-1].append(i)
     
     s = []
     for i in buckets:
