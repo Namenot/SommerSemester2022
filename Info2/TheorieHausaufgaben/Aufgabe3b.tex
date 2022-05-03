@@ -270,16 +270,30 @@ sorting=ynt,
 	
 	\begin{verbatim}
 		
-		sortListwithHeap(A: Array)
-
+		sortListwithHeap(A: Array of k lists)
+			
+			sei B ein leerer heap
+			
+			sei C ein leeres array
+			sei D ein leeres array
+			
+			for i $\leftarrow$ 1 to k do
+				C.append([A[i][1], k]) //tupel aus der value des minElemets der list und der listenNummer
+				Remove(A[i][1])
+			
+			B.BuildMinHeap(C)
+							
 			for i $\leftarrow$ 1 to n do
-				item = heap.minElement
+				item = B.minElement
+				listnumber = item[2]
 				deleteMin()
-				A[n-i] = item
+				B.insert((A[listnumber][1], listnumber))
+				Remove(A[listnumber][1])
+				D.append(item[1])
 			
 	\end{verbatim}
 
-	Dieser Algorythmus hält die schranke ein, da deleteMin() laut VL in O(log(n)) ist, und dies wird n mal getan $\rightarrow$ O(n log(n))
+	Dieser Algorythmus hält die schranke ein, da deleteMin() und insert() laut VL in O(log(n)) sind, und dies wird n mal getan $\rightarrow$ O(n log(n))
 	
 	\item[d)] Gegeben sei die folgende alternative Prozedur zum Erstellen eines binären Heaps für
 	ein unsortiertes Array A[1..n]:
