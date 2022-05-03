@@ -1,7 +1,53 @@
-\documentclass[12pt, a4paper, twoside]{article}
+\documentclass[12pt, a4paper, oneside]{article}
 
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
+
+
+\usepackage[
+a4paper,
+textwidth=175mm,
+textheight=225mm,
+heightrounded,
+]{geometry}
+
+\usepackage[T1]{fontenc} % <-- don't forget
+\usepackage[utf8]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt,
+]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage[hidelinks]{hyperref}
+
+\usepackage[
+a4paper,
+textwidth=175mm,
+textheight=225mm,
+heightrounded,
+]{geometry}
+
+\usepackage[T1]{fontenc} % <-- don't forget
+\usepackage[utf8]{inputenc}
+\usepackage[dutch]{babel}
+\usepackage{graphicx}
+\usepackage{pgfplots}
+\usepackage[
+backend=biber,
+style=alphabetic,
+sorting=ynt,
+]{biblatex}
+\addbibresource{references.bib}
+
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parskip}{1.2ex}    % space between paragraphs
+\setlength{\parindent}{0cm}%2em}       % amount of indention
 
 \title{Hausaufgabe 3}
 \author{Aaron Sastry}
@@ -69,10 +115,8 @@
 	\emph{Nach 3 Iterationen ist die List final sortiert mit der Reihenfolge:}
 	\newline
 	\textbf{\emph{023, 172, 271, 601, 800, 828, 842, 889, 904, 991}}
-	\newline
 	
-	\pagebreak
-	
+	\newpage
 	\item[b)] \hfill \\
 	Sortieren Sie die Folge b = (0.271, 0.842, 0.172, 0.828, 0.904) mit MSD–RadixSort.
 	\\ \\
@@ -112,7 +156,7 @@
 	Zu guter Letzt werden jetzt noch die Buckets wieder zu einer fertigen Liste zusammen gesetzt:
 	
 	\textbf{$\Longrightarrow$ \emph{0.172, 0.271, 0.828, 0.842, 0.904}}
-	
+	\newline
 	
 	\item[c)] \hfill \\
 	Angenommen, Sie wollen m-stellige Binärzahlen mit MSD-RadixSort sortieren, wobei
@@ -143,82 +187,5 @@
 		\item \emph{\( \Longrightarrow \mathcal{O}(m*n) \)}\\
 	\end{center}
 	\end{description}
-
-
-
-	\textbf{Aufgabe 3.2 Heaps}
-	\begin{description}
-		\item[a)] Fügen Sie die Werte 10, 4, 3, 15, 21, 2, 8, 11 und 1 in einen anfangs leeren Heap ein.
-		Stellen Sie nach jeder Einfüge-Operation den Heap als Baum dar und geben Sie das Array an, welches dem fertigen Heap entspricht.
-		\\
-		
-		\emph{insert: 10}\\
-		\begin{tikzpicture}
-			\node[circle,draw](z){$10$};
-		\end{tikzpicture}
-		\\
-		\emph{insert: 4}\\
-		\begin{tikzpicture}
-			\node[circle,draw](z){$4$}
-			child{
-				node[circle,draw]{10}};
-		\end{tikzpicture}
-		\\
-		\emph{insert: 3}\\
-		\begin{tikzpicture}
-			\node[circle,draw](z){$3$}
-			child{ node[circle,draw]{4}}
-			child{node[circle,draw]{10}};
-		\end{tikzpicture}
-		\\
-		\newpage
-		\emph{insert: 15}\\
-		\begin{tikzpicture}
-			\node[circle,draw](z){$3$}
-			child{
-				node[circle,draw]{4}  child{node[circle,draw]{15}}}
-			child{node[circle,draw]{10}};
-		\end{tikzpicture}
-		\\
-		\emph{insert: 21}\\
-		\begin{tikzpicture}
-			\node[circle,draw](z){$3$}
-			child{
-				node[circle,draw]{4}  child{node[circle,draw]{15}} child{node[circle,draw]{21}}}
-			child{node[circle,draw]{10}};
-		\end{tikzpicture}
-		\\
-		\emph{insert: 2}\\
-		\begin{tikzpicture}
-			\node[circle,draw](z){$2$}
-			child{
-				node[circle,draw]{3}  
-					child{node[circle,draw]{10}} 
-					child{node[circle,draw]{15}}}
-			child{
-				node[circle,draw]{4} 
-					child{node[circle,draw]{21}} 
-					child{node[circle,draw]{1}}};
-		\end{tikzpicture}
-		
-		\item[b)] Führen Sie auf dem soeben gebauten Heap zwei deleteMin-Operationen durch und
-		geben Sie jeweils den resultierenden Heap in Baumdarstellung und als Array an.
-		
-		\item[c)] Beschreiben Sie einen Algorithmus, der k sortierte Listen mit Gesamtlänge n in
-		O(n log k) Zeit zu einer sortierten Liste zusammenfügt. Benutzen Sie dabei einen Heap.
-		Begründen Sie kurz, dass Ihr Algorithmus die Laufzeitschranke einhält.
-		
-		\item[d)] Gegeben sei die folgende alternative Prozedur zum Erstellen eines binären Heaps für
-		ein unsortiertes Array A[1..n]:
-		buildHeapInsert(A : Array):
-		1 for i ← 1 to n do
-		2 insert(A[i])
-		Geben Sie ein Beispiel für eine Eingabe an, sodass buildHeapInsert eine schlechtere
-		Laufzeit für das Aufbauen des Heaps hat als O(n). Was ist die worst–case Laufzeit von
-		buildHeapInsert? Begründen Sie!
-		
-	\end{description}
-	
-	
 	
 \end{document}
