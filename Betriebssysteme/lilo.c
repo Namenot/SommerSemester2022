@@ -43,12 +43,16 @@ static int insertElement(int value) {
     // if we have a first element we can work with that
     if(newList != NULL)
     {
-        while(iter->next != NULL)
-        {
+        // we dont need a loop condition bc we're gonna jump out of the loop anyway
+        for(;;){
             // if the value exists we dont inssert as we dont want doublicates
             if(iter->value == value)
                 return -1;
 
+            // check if there isnt a proceeding element
+            if(iter->next == NULL)
+                break;
+            
             // iterate to the last element that doenst have a next element yet
             iter = iter->next;
         }
@@ -112,6 +116,7 @@ int main (int argc, char* argv[]) {
     printf("insert 12: %d\n", insertElement(12));
     printf("insert 14: %d\n", insertElement(14));
     printf("insert 27: %d\n", insertElement(27));
+    printf("insert 16: %d\n", insertElement(16));
     printf("insert 16: %d\n", insertElement(16));
     
     printList();
