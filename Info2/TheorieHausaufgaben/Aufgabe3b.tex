@@ -3,6 +3,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
 
+\usepackage{listings}
+
 
 \usepackage[
 a4paper,
@@ -268,26 +270,47 @@ sorting=ynt,
 	Begründen Sie kurz, dass Ihr Algorithmus die Laufzeitschranke einhält.\\
 	\newline
 	
-	\begin{verbatim}
+	\begin{lstlisting}
 		
-		sortListwithHeap(A: Array)
-
-			for i $\leftarrow$ 1 to n do
-				item = heap.minElement
-				deleteMin()
-				A[n-i] = item
+	sortListwithHeap(A: Array of k lists)
 			
-	\end{verbatim}
+		sei B ein leerer heap
+			
+		sei C ein leeres array
+		sei D ein leeres array
+			
+		for i <- 1 to k do
+			
+			/*tupel aus der value des minElemets 
+			der list und der listenNummer */
+			C.append([A[i][1], k])
+			
+			Remove(A[i][1])
+			
+		B.BuildMinHeap(C)
+							
+		for i <- 1 to n do
+		    item = B.minElement
+		    listnumber = item[2]
+		    deleteMin()
+		    D.append(item[1])
+				
+		    if A[listnumber] nicht leer
+		        B.insert((A[listnumber][1], listnumber))
+		        Remove(A[listnumber][1])
+				
+			
+	\end{lstlisting}
 
-	Dieser Algorythmus hält die schranke ein, da deleteMin() laut VL in O(log(n)) ist, und dies wird n mal getan $\rightarrow$ O(n log(n))
+	Dieser Algorythmus hält die schranke ein, da deleteMin() und insert() laut VL in O(log(n)) sind, und dies wird n mal getan $\rightarrow$ O(n log(n))
 	
 	\item[d)] Gegeben sei die folgende alternative Prozedur zum Erstellen eines binären Heaps für
 	ein unsortiertes Array A[1..n]:
-	\begin{verbatim}
+	\begin{lstlisting}
 		buildHeapInsert(A : Array):
-		1 	for i ← 1 to n do
-		2 	insert(A[i])
-	\end{verbatim}
+		 	for i <- 1 to n do
+		 	insert(A[i])
+	\end{lstlisting}
 	Geben Sie ein Beispiel für eine Eingabe an, sodass buildHeapInsert eine schlechtere
 	Laufzeit für das Aufbauen des Heaps hat als O(n). Was ist die worst–case Laufzeit von
 	buildHeapInsert? Begründen Sie!
