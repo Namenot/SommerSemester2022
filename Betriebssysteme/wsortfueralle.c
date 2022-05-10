@@ -10,7 +10,7 @@ struct subarray
 
 typedef struct subarray subarray;
 
-void printArray(int *)
+void printArray(int *word)
 {
 
 }

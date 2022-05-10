@@ -192,7 +192,8 @@ int main(int argc, char **argv)
         //printf("[%d] ", i);
         printIntString(filecontent.lines[i]);
         printf("\n");
-        free(filecontent.lines[i]);   
+        free(filecontent.lines[i]->arr);
+        free(filecontent.lines[i]); 
     }
 
     // cant check free as it doesnt provide a return value
