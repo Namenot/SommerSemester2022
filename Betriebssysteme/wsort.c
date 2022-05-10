@@ -179,7 +179,10 @@ int main(int argc, char **argv)
     }
 
     while (fgetl(&nWord) != NULL)
+    {
         dynamicAllocation(&filecontent, &nWord);
+        free(nWord.arr);
+    }
 
     qsort(filecontent.lines, filecontent.size, sizeof(int *), comparisons);
 
@@ -189,7 +192,7 @@ int main(int argc, char **argv)
         //printf("[%d] ", i);
         printIntString(filecontent.lines[i]);
         printf("\n");
-        
+        free(filecontent.lines[i]);   
     }
 
     // cant check free as it doesnt provide a return value
