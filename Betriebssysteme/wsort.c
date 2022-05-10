@@ -131,7 +131,7 @@ streamline *fgetl(streamline *line)
         size++;
 
         // increase the size of the array by 1 as we always need space for the '\n'
-        line->arr = (int *)realloc(line->arr, sizeof(int)* (size));
+        line->arr = (int *)realloc(line->arr, sizeof(int)* size);
         if(line->arr == NULL)
         {
             perror("realloc of line->arr was unsuccessful");
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
     
     arraarra filecontent;
     filecontent.size = 0;
-    filecontent.lines = (streamline **)malloc(sizeof(streamline *));
+    filecontent.lines = malloc(sizeof(streamline *));
     if(filecontent.lines == NULL)
     {
         perror("malloc of fliecontent.lines was unsuccessfull");
@@ -171,18 +171,15 @@ int main(int argc, char **argv)
 
     streamline nWord;
     nWord.size = 0;
-    nWord.arr = (int *)malloc(sizeof(int));
-    if(nWord.arr == NULL)
-    {
-        perror("malloc of nWord.arr was unsuccessfull");
-        exit(EXIT_FAILURE);
-    }
+    nWord.arr = NULL;
 
-    while (fgetl(&nWord) != NULL)
+    streamline *obj;
+    do
     {
+        obj = fgetl(&nWord);
         dynamicAllocation(&filecontent, &nWord);
         free(nWord.arr);
-    }
+    }while(obj != NULL);
 
     qsort(filecontent.lines, filecontent.size, sizeof(int *), comparisons);
 
