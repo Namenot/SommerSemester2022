@@ -15,15 +15,13 @@ struct arrayOfArrays
 };
 
 typedef  struct streamline streamline;
-typedef struct arrayOfArrays arraarra;
+typedef struct arrayOfArrays ara_ara;
 
 void printIntString(streamline *word)
 {
     for(int i = 0; i < word->size; ++i) 
-    {
         if((char)word->arr[i] != '\n')
             printf("%c" , word->arr[i]);
-    }
 }
 
 int comparisons(const void* elem1, const void *elem2)
@@ -54,7 +52,7 @@ int comparisons(const void* elem1, const void *elem2)
     return (nL1 > nL2) - (nL2 > nL1);
 }
 
-streamline *dynamicAllocation(arraarra *element, streamline *insert)
+streamline *dynamicAllocation(ara_ara *element, streamline *insert)
 {   
 
     // if the new string is empty we just end this
@@ -156,11 +154,17 @@ streamline *fgetl(streamline *line)
     return line; 
 }
 
-
 int main(int argc, char **argv)
 {
-    
-    arraarra filecontent;
+
+    // check if an input stream exists
+    if(!feof(stdin))
+    {
+        perror("stdin buffer is empty");
+        exit(EXIT_FAILURE);
+    }
+
+    ara_ara filecontent;
     filecontent.size = 0;
     filecontent.lines = malloc(sizeof(streamline *));
     if(filecontent.lines == NULL)
@@ -173,13 +177,12 @@ int main(int argc, char **argv)
     nWord.size = 0;
     nWord.arr = NULL;
 
-    streamline *obj;
-    do
+    for(streamline *i; i != NULL;)
     {
-        obj = fgetl(&nWord);
+        i = fgetl(&nWord);
         dynamicAllocation(&filecontent, &nWord);
         free(nWord.arr);
-    }while(obj != NULL);
+    }
 
     qsort(filecontent.lines, filecontent.size, sizeof(int *), comparisons);
 
@@ -193,7 +196,6 @@ int main(int argc, char **argv)
         free(filecontent.lines[i]); 
     }
 
-    // cant check free as it doesnt provide a return value
     free(filecontent.lines);
 
     return 0;
