@@ -100,7 +100,7 @@ streamline *dynamicAllocation(ara_ara *element, streamline *insert)
     return element->lines[element->size - 1];
 }
 
-streamline *fgetl(streamline *line)
+int fgetl(streamline *line)
 {   
 
     // keeping track of the lines size
@@ -149,9 +149,9 @@ streamline *fgetl(streamline *line)
     line->size = size;
 
     if(c == EOF)
-        return NULL;
+        return 0;
 
-    return line; 
+    return 1; 
 }
 
 int main(int argc, char **argv)
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
     nWord.size = 0;
     nWord.arr = NULL;
 
-    for(streamline *i; i != NULL;)
+    for(int i = 1; i != 0;)
     {
         i = fgetl(&nWord);
         dynamicAllocation(&filecontent, &nWord);
