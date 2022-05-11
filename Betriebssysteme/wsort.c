@@ -157,10 +157,10 @@ streamline *fgetl(streamline *line)
 int main(int argc, char **argv)
 {
 
-    // check if an input stream exists
-    if(!feof(stdin))
+    // check whether the stdin stream is empty
+    if(ftell(stdin) == -1)
     {
-        perror("stdin buffer is empty");
+        perror("No filestream detected");
         exit(EXIT_FAILURE);
     }
 
