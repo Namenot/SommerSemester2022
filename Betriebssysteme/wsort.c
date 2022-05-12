@@ -52,7 +52,7 @@ int comparisons(const void* elem1, const void *elem2)
     return (nL1 > nL2) - (nL2 > nL1);
 }
 
-streamline *dynamicAllocation(ara_ara *element, streamline *insert)
+streamline *dynamicAllocation(ara_ara *element, streamline *insert, int lastinsert)
 {   
 
     // if the new string is empty we just end this
@@ -84,7 +84,13 @@ streamline *dynamicAllocation(ara_ara *element, streamline *insert)
 
     tempWord->size = insert->size;
     
-    element->lines = (streamline **)realloc(element->lines, sizeof(streamline **) * (element->size + 1));
+    int allocatenewmem = 1024;
+
+    if(lastinsert == 0)
+        element->lines = (streamline **)realloc(element->lines, sizeof(streamline **) * (element->size + 1));
+    else if (element->size % allocatenewmem == 0)
+        element->lines = (streamline **)realloc(element->lines, sizeof(streamline **) * (element->size + allocatenewmem));
+
     if(element->lines == NULL)
     {
         perror("couldnt realloc element->lines");
@@ -120,21 +126,34 @@ int fgetl(streamline *line)
         exit(EXIT_FAILURE);
     }
 
+    // only reallocate every x inserts should reduce the amount of reallocations in memory
+    int allocatenewmem = 64;
+    float mod = 1;
+
     // every line will either end with a '\n' or an EOF,
     // EOF will be tested later for
     while(c != '\n' && c != EOF)
     {
         // insert the 1st element
         line->arr[size-1] = c;
-        size++;
 
-        // increase the size of the array by 1 as we always need space for the '\n'
-        line->arr = (int *)realloc(line->arr, sizeof(int)* size);
-        if(line->arr == NULL)
+        // reallocation every so oftern
+        if((size - 1) % allocatenewmem == 0)
         {
-            perror("realloc of line->arr was unsuccessful");
-            exit(EXIT_FAILURE);
+            // increase the size of the array by 1 as we always need space for the '\n'
+            line->arr = (int *)realloc(line->arr, sizeof(int)* (size + allocatenewmem));
+
+            mod /= 2;
+            allocatenewmem *= mod;
+            allocatenewmem = allocatenewmem * (allocatenewmem > 0) + (allocatenewmem <= 0);
+
+            if(line->arr == NULL)
+            {
+                perror("realloc of line->arr was unsuccessful");
+                exit(EXIT_FAILURE);
+            }
         }
+        size++;
 
         c  = fgetc(stdin);
         if(ferror(stdin))
@@ -148,6 +167,13 @@ int fgetl(streamline *line)
     line->arr[size-1] = '\n';
     line->size = size;
 
+    // readjust the memory buffer size 
+    line->arr = (int *)realloc(line->arr, sizeof(int)* size);
+    if(line->arr == NULL)
+    {
+        perror("final realloc of line->arr was unsuccessful");
+        exit(EXIT_FAILURE);
+    }
     if(c == EOF)
         return 0;
 
@@ -180,7 +206,7 @@ int main(int argc, char **argv)
     for(int i = 1; i != 0;)
     {
         i = fgetl(&nWord);
-        dynamicAllocation(&filecontent, &nWord);
+        dynamicAllocation(&filecontent, &nWord, i);
         free(nWord.arr);
     }
 
