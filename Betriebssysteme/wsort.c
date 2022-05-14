@@ -210,7 +210,7 @@ int main(int argc, char **argv)
         free(nWord.arr);
     }
 
-    qsort(filecontent.lines, filecontent.size, sizeof(int *), comparisons);
+    qsort(filecontent.lines, filecontent.size, sizeof(streamline *), comparisons);
 
     // print new order
     for(int i = 0; i < filecontent.size ; ++i)
