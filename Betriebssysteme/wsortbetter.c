@@ -5,7 +5,7 @@
 struct streamline
 {
     int size;
-    int *arr;
+    char *arr;
 };
 
 struct arrayOfArrays
@@ -59,6 +59,8 @@ streamline *dynamicAllocation(ara_ara *element, streamline *insert)
     if(insert->arr == NULL)
         return NULL;
 
+    for(insert->size = 0; (insert->arr[insert->size] != '\0') && (insert->arr[insert->size] != EOF);++insert->size);
+
     //max word length is 100 characters + '\n' = 101
     if(insert->size > 101)
         return NULL;
@@ -75,7 +77,7 @@ streamline *dynamicAllocation(ara_ara *element, streamline *insert)
         exit(EXIT_FAILURE);
     }
 
-    tempWord->arr = (int *)malloc(sizeof(int)* (insert->size));
+    tempWord->arr = malloc(sizeof(char)* (insert->size));
     if(tempWord->arr == NULL)
     {
         perror("couldnt assigne Memory to tempWord->array");
@@ -104,10 +106,10 @@ streamline *dynamicAllocation(ara_ara *element, streamline *insert)
 int main(int argc, char **argv)
 {
 
-    // check if an input stream exists
-    if(!feof(stdin))
+    // check whether the stdin stream is empty
+    if(ftell(stdin) == -1)
     {
-        perror("stdin buffer is empty");
+        perror("No filestream detected");
         exit(EXIT_FAILURE);
     }
 
@@ -122,16 +124,17 @@ int main(int argc, char **argv)
 
     streamline nWord;
     nWord.size = 0;
-    nWord.arr = NULL;
-
-    char test[102];
-
-    while(fgets(test, 102, stdin) != NULL)
+    nWord.arr = (char *)malloc(sizeof(char) * 103);
+    if(nWord.arr == NULL)
     {
-        nWord.arr = (int *)test;
-        dynamicAllocation(&filecontent, &nWord);
-        free(nWord.arr);
+        perror("malloc of nWord.arr was unsuccessfull");
+        exit(EXIT_FAILURE);
     }
+
+    while(fgets(nWord.arr, 103, stdin) != NULL)
+        dynamicAllocation(&filecontent, &nWord);
+
+    free(nWord.arr);
 
     qsort(filecontent.lines, filecontent.size, sizeof(int *), comparisons);
 
@@ -145,7 +148,7 @@ int main(int argc, char **argv)
         free(filecontent.lines[i]); 
     }
 
-    free(filecontent.lines);
+    free(filecontent.lines); 
 
     return 0;
 }
