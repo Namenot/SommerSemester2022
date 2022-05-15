@@ -4,7 +4,7 @@
 int main(int argc, char **argv)
 {
 
-    const int MAX = -10; // number space we want to search in
+    const int MAX = 100; // number space we want to search in
     bool prime[MAX+1]; // array of prime
 
     // special cases {0,1} are never prime
