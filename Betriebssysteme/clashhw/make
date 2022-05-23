@@ -1,0 +1,15 @@
+CC = gcc
+CFLAGS = -std=c11 -pedantic -Wall -Werror -D_XOPEN_SOURCE=700
+
+SUBDIR = clash/
+
+.PHONY: all clash clean
+
+all: clash.o $(SUBDIR)plist.o
+    
+
+clash: clash.c $(SUBDIR)plist.o
+
+clean:
+
+    rm -f clash.o
