@@ -10,48 +10,58 @@ int executecommand(char **command)
 
     pid_t child = fork();
     int wstatus;
-    
-
 
     if (child == 0)
     {
-        printf("this child is trying to execute the command: %s\n", command[0]);
-        execv(command[0], command);
+        execvp(command[0], command);
+        exit(EXIT_SUCCESS);
     }
     
     if(child > 0)
         waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
-    
+
     return wstatus;
 }
 
 size_t getinput(char ***chopper)
 {
-    size_t chopps = 1;
+    size_t chopps = 0;
     size_t inlen = 0;
 
     char *input = NULL;
     char *choppedpiece;
     
-    // space, tab, string terminator
-    char delims[3] = {32, 9, 0};
+    // get the input
     inlen = getline(&input, &inlen, stdin);
 
-    //chop up the command and the options into different strings
-    choppedpiece = strtok(input, delims);
+    input = realloc(input, sizeof(char) * (inlen+1));
+    input[inlen - 1] = ' ';
+    input[inlen] = 0;
 
-    *chopper = malloc(sizeof(char*) * chopps);
-
-    // cutting board
-    while( choppedpiece != NULL )
+    // make sure our command length is legal
+    if(inlen > 1337)
     {
-        (*chopper)[chopps -1] = choppedpiece;
+        printf("illegal command length : MAX allowed length is 1337\n");
+        return inlen;
+    }
+
+    // space, tab, string terminator
+    char delims[3] = {32, 9, 0};
+
+    // init chopper to a length
+    *chopper = malloc(sizeof(char*) * chopps);
+    do
+    {
+        // make space for the new element
         chopps ++;
         *chopper = realloc(*chopper, sizeof(char*) * chopps);
-        choppedpiece = strtok(NULL, delims);
-    }
-    // now the input can be free'd
-    *chopper = realloc(*chopper, sizeof(char*) * (chopps -1));
+        
+        //chop up the command and the options into different strings
+        choppedpiece = strtok(input, delims);
+        input = NULL;
+        (*chopper)[chopps -1] = choppedpiece;
+
+    }while(choppedpiece != NULL);
 
     return (chopps - 1);
 }
@@ -62,20 +72,30 @@ int main(int argc, char **argv)
     // (i usually didnt supass 80 however i found it to be on the safer site)
     char dir[255];
     char **choppedassembly = malloc(0);
+    
+    while(1)
+    {
+        // retrive and print current path
+        getcwd(dir, 255);
+        printf("%s/: ", dir);
+        size_t size = getinput(&choppedassembly);
 
-    // retrive and print current path
-    getcwd(dir, 255);
-    printf("%s/:", dir);
-    size_t size = getinput(&choppedassembly);
+        int execstat = executecommand(choppedassembly);
 
-    for(size_t i = 0; i < size; ++i)
-        printf("%s\n", choppedassembly[i]);
+        printf("Exitstatus [");
 
-    executecommand(choppedassembly);
+        for(size_t i = 0; i < size; ++i)
+        {
+            printf("%s", choppedassembly[i]);
+            if(size -1 != i)
+                printf(" ");
+        }
+        
+        printf("] = %d\n", execstat);
+    }
 
     free(*choppedassembly);
     free(choppedassembly);
     printf("\n");
-    fork();
     return 0;
 }
