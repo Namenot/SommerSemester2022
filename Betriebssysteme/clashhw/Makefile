@@ -7,11 +7,11 @@ CFLAGS = -std=c11 -pedantic -Wall -Werror -D_XOPEN_SOURCE=700
 all: clash
 
 clean:
-	rm -f clash
+	rm clash
 
 clash: clash.c --plist.o
-	$(CC) $(CFLAGS) -o *.o clash.c 
+	$(CC) $(CFLAGS) -o clash *.o clash.c
 
-# Helper targets -- makes it mostly somewhat private
+# Helper targets -- makes it somewhat private
 --plist.o:
-	$(CC) $(CFLAGS) -c plist.c plist.h
+	$(CC) $(CFLAGS) -c -o plist.o plist.c

@@ -11,8 +11,13 @@ int executecommand(char **command)
     pid_t child = fork();
     int wstatus;
     
+
+
     if (child == 0)
-        execl(command[0], *(command + 1));
+    {
+        printf("this child is trying to execute the command: %s\n", command[0]);
+        execv(command[0], command);
+    }
     
     if(child > 0)
         waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
@@ -53,7 +58,6 @@ size_t getinput(char ***chopper)
 
 int main(int argc, char **argv)
 {
-    
     // set reasonable limit for how long a directory is gonna be 
     // (i usually didnt supass 80 however i found it to be on the safer site)
     char dir[255];
@@ -72,5 +76,6 @@ int main(int argc, char **argv)
     free(*choppedassembly);
     free(choppedassembly);
     printf("\n");
+    fork();
     return 0;
 }
