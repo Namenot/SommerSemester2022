@@ -5,15 +5,38 @@
 #include <string.h>
 #include <sys/wait.h>
 
-int executecommand(char **command)
-{   
+int manageCommand(char **command)
+{
+    //pid_t child = fork();
+    int wstatus = 0;
 
-    pid_t child = fork();
-    int wstatus;
+    return wstatus;
+}
+
+void executeBackgroundProcess(pid_t child, char **command)
+{
+
+    if(child < 0)
+        return;
 
     if (child == 0)
     {
         execvp(command[0], command);
+        exit(EXIT_SUCCESS);
+    }
+}
+
+int execForgroundProcess(char **command)
+{   
+    pid_t child = fork();
+    int wstatus;
+
+    if(child < 0)
+        return -1;
+
+    if (child == 0)
+    {
+        execv(command[0], command);
         exit(EXIT_SUCCESS);
     }
     
@@ -66,30 +89,45 @@ size_t getinput(char ***chopper)
     return (chopps -1);
 }
 
+char *reassembleCmd(char **command, char *output)
+{
+    char spacecowboy[] = " ";
+
+    for(int i = 0; command[i] != NULL; ++i)
+    {
+        strcat(output, command[i]);
+        if(command[i+1] != NULL)
+            strcat(output, spacecowboy);
+    }
+
+    return output;
+}
+
 int main(int argc, char **argv)
 {
     // according to the internet a path cant be longer than 4096 bytes 
     // i accept this arcane knowledge as absolut truth 
     char dir[4096];
     char **choppedassembly = malloc(0);
+
+    //pid_t *zombies;
+    //int zombieCount = 0;
     
     while(1)
     {
         // retrive and print current path
         getcwd(dir, 4096);
         printf("%s/: ", dir);
-        size_t size = getinput(&choppedassembly);
+        //size_t size = 
+        getinput(&choppedassembly);
 
-        int execstat = executecommand(choppedassembly);
+        int execstat = execForgroundProcess(choppedassembly);
 
         printf("Exitstatus [");
 
-        for(size_t i = 0; i < size; ++i)
-        {
-            printf("%s", choppedassembly[i]);
-            if(size -1 != i)
-                printf(" ");
-        }
+        char assmbledcommand[] = "";
+        reassembleCmd(choppedassembly, assmbledcommand);
+        printf("%s", assmbledcommand);
         
         printf("] = %d\n", execstat);
     }
