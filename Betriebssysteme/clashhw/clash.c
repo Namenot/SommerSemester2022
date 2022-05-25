@@ -46,7 +46,7 @@ size_t getinput(char ***chopper)
     }
 
     // space, tab, string terminator
-    char delims[3] = {32, 9, 0};
+    const char delims[3] = {32, 9, 0};
 
     // init chopper to a length
     *chopper = malloc(sizeof(char*) * chopps);
@@ -63,20 +63,20 @@ size_t getinput(char ***chopper)
 
     }while(choppedpiece != NULL);
 
-    return (chopps - 1);
+    return (chopps -1);
 }
 
 int main(int argc, char **argv)
 {
-    // set reasonable limit for how long a directory is gonna be 
-    // (i usually didnt supass 80 however i found it to be on the safer site)
-    char dir[255];
+    // according to the internet a path cant be longer than 4096 bytes 
+    // i accept this arcane knowledge as absolut truth 
+    char dir[4096];
     char **choppedassembly = malloc(0);
     
     while(1)
     {
         // retrive and print current path
-        getcwd(dir, 255);
+        getcwd(dir, 4096);
         printf("%s/: ", dir);
         size_t size = getinput(&choppedassembly);
 
@@ -97,5 +97,6 @@ int main(int argc, char **argv)
     free(*choppedassembly);
     free(choppedassembly);
     printf("\n");
+
     return 0;
 }
