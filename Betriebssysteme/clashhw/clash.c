@@ -5,45 +5,83 @@
 #include <string.h>
 #include <sys/wait.h>
 
+#include "plist.h"
+
+void execProcess(pid_t child, int fb, char **command);
+int manageCommand(char **command);
+size_t getinput(char ***chopper);
+char *reassembleCmd(char **command, char *output);
+
 int manageCommand(char **command)
 {
-    //pid_t child = fork();
+
+    char *reservedfunctions[] = {"cd", "ps", "&"};
+
+    //check if command is not 0
+    int i = 0;
+    for(; command[i] != NULL; ++i);
+
+    if(i == 0)
+        return 0;
+    
+    int fb = 1;
+    
+    if(!strcmp(command[i-1], "&")) // is a background process?
+    {
+        fb = 0; // tell them its a background process
+        command[i-1] = NULL;
+    }
+
+    pid_t child = fork();
     int wstatus = 0;
 
+    if(!strcmp(command[0], reservedfunctions[0]))
+    {
+        printf("switching directory\n");
+    } // change directory
+    else if(!strcmp(command[0], reservedfunctions[1]))
+    {
+        printf("this should be printing all the running processes\n");
+    } // print processes
+    else 
+        execProcess(child, fb, command);
+    
     return wstatus;
 }
 
-void executeBackgroundProcess(pid_t child, char **command)
-{
-
-    if(child < 0)
-        return;
-
-    if (child == 0)
-    {
-        execvp(command[0], command);
-        exit(EXIT_SUCCESS);
-    }
-}
-
-int execForgroundProcess(char **command)
+void execProcess(pid_t child, int fb, char **command)
 {   
-    pid_t child = fork();
-    int wstatus;
-
-    if(child < 0)
-        return -1;
+    int wstatus = 0; 
 
     if (child == 0)
-    {
-        execv(command[0], command);
+    {   
+        if(fb == 1)
+            execvp(command[0], command);
+        else
+        {
+            execvp(command[0], command);
+        }
         exit(EXIT_SUCCESS);
     }
     
     if(child > 0)
-        waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
+    {
+        printf("the parent is reporting that fb is : %d\n", fb);
+        if(fb == 1)
+        {
+            waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
+            
+            printf("Exitstatus [");
 
-    return wstatus;
+            char assmbledcommand[1337] = ""; // 1337 is the max string length allowed for a command
+            reassembleCmd(command, assmbledcommand);
+            printf("%s", assmbledcommand);
+        
+            printf("] = %d\n", wstatus);
+        }
+        else
+            {}//add to plist
+    }
 }
 
 size_t getinput(char ***chopper)
@@ -109,9 +147,6 @@ int main(int argc, char **argv)
     // i accept this arcane knowledge as absolut truth 
     char dir[4096];
     char **choppedassembly = malloc(0);
-
-    //pid_t *zombies;
-    //int zombieCount = 0;
     
     while(1)
     {
@@ -121,15 +156,7 @@ int main(int argc, char **argv)
         //size_t size = 
         getinput(&choppedassembly);
 
-        int execstat = execForgroundProcess(choppedassembly);
-
-        printf("Exitstatus [");
-
-        char assmbledcommand[] = "";
-        reassembleCmd(choppedassembly, assmbledcommand);
-        printf("%s", assmbledcommand);
-        
-        printf("] = %d\n", execstat);
+        manageCommand(choppedassembly);
     }
 
     free(*choppedassembly);
@@ -138,3 +165,9 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+/* TODO:
+ * - manageCommand(); check for reservedfunctions in command (obv based on the specific function) [done]
+ * - executeBackgroundProcess(); insert every background pid and command into a plist specified in main() 
+ * - main(); collect finisched pid's and removed them from plist -> walkList(), waitpid(WNOHANG)
+ */
