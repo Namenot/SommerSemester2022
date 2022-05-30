@@ -15,7 +15,8 @@ static struct qel {
 	struct qel *next;
 } *head;
 
-void walkList(int (*callback) (pid_t, const char *)) {
+void walkList(int (*callback) (pid_t, const char *))
+{
 	struct qel *lauf = head;
 	int i = 0;
 
@@ -30,6 +31,7 @@ void walkList(int (*callback) (pid_t, const char *)) {
 }
 
 int insertElement(pid_t pid, const char *cmdLine) {
+
 	struct qel *lauf = head;
 	struct qel *schlepp = NULL;
 

@@ -11,11 +11,44 @@ void execProcess(pid_t child, int fb, char **command);
 int manageCommand(char **command);
 size_t getinput(char ***chopper);
 char *reassembleCmd(char **command, char *output);
+int printPorcesses(pid_t process, const char * process_name);
+int collectAll(pid_t process, const char * process_name);
+
+void die(const char * msg)
+{
+    perror(msg);
+    exit(3);
+}
+
+int collectAll(pid_t process, const char * process_name)
+{
+    int wstatus = 0;
+    // collecting all processes
+
+    if(waitpid(process, &wstatus, WUNTRACED | WCONTINUED | WNOHANG) != 0)
+        removeElement(process, NULL, 0);
+
+    return 0;
+}
+
+int printPorcesses(pid_t process, const char * process_name)
+{
+    printf("[%d] | %s\n", process, process_name);
+    return 0;
+}
 
 int manageCommand(char **command)
 {
 
-    char *reservedfunctions[] = {"cd", "ps", "&"};
+    char *reservedfunctions[] = {"cd", "jobs"};
+
+    // this kills the programm
+    if(strcmp(command[0], reservedfunctions[0]) == 0)
+    {
+        // change directory
+        chdir(command[1]);
+        return 0;
+    }
 
     //check if command is not 0
     int i = 0;
@@ -24,39 +57,45 @@ int manageCommand(char **command)
     if(i == 0)
         return 0;
     
-    int fb = 1;
-    
-    if(!strcmp(command[i-1], "&")) // is a background process?
-    {
-        fb = 0; // tell them its a background process
-        command[i-1] = NULL;
-    }
-
-    pid_t child = fork();
+    int fg = 1; // foreground command
     int wstatus = 0;
 
-    if(!strcmp(command[0], reservedfunctions[0]))
+    if(!strcmp(command[i-1], "&")) // is a background process?
+        fg = 0; // tell them its a background process
+
+    pid_t child = fork();
+
+    if(child > 0)
     {
-        printf("switching directory\n");
-    } // change directory
-    else if(!strcmp(command[0], reservedfunctions[1]))
-    {
-        printf("this should be printing all the running processes\n");
-    } // print processes
-    else 
-        execProcess(child, fb, command);
+        //printf("the parent is reporting that fb is : %d\n", fb);
+        char assmbledcommand[1337] = ""; // 1337 is the max string length allowed for a command
+        reassembleCmd(command, assmbledcommand);
     
-    return wstatus;
-}
+        //add to plist
+        insertElement(child,assmbledcommand);
 
-void execProcess(pid_t child, int fb, char **command)
-{   
-    int wstatus = 0; 
+        if(fg == 1)
+        {
+            waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
+            
+            removeElement(child, NULL, 0);
 
-    if (child == 0)
-    {   
-        if(fb == 1)
-            execvp(command[0], command);
+            printf("Exitstatus [");
+            printf("%s", assmbledcommand);
+            printf("] = %d\n", wstatus);
+        }
+    }
+
+    if(child == 0)
+    {
+        if(fg == 0)
+            command[i-1] = NULL;
+
+        if(strcmp(command[0], reservedfunctions[1]) == 0)
+        {
+            // print processes
+            walkList(printPorcesses);
+        }
         else
         {
             execvp(command[0], command);
@@ -64,24 +103,7 @@ void execProcess(pid_t child, int fb, char **command)
         exit(EXIT_SUCCESS);
     }
     
-    if(child > 0)
-    {
-        printf("the parent is reporting that fb is : %d\n", fb);
-        if(fb == 1)
-        {
-            waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
-            
-            printf("Exitstatus [");
-
-            char assmbledcommand[1337] = ""; // 1337 is the max string length allowed for a command
-            reassembleCmd(command, assmbledcommand);
-            printf("%s", assmbledcommand);
-        
-            printf("] = %d\n", wstatus);
-        }
-        else
-            {}//add to plist
-    }
+    return wstatus;
 }
 
 size_t getinput(char ***chopper)
@@ -95,15 +117,25 @@ size_t getinput(char ***chopper)
     // get the input
     inlen = getline(&input, &inlen, stdin);
 
+    // if getline sees ctrl + D / eof
+    if(inlen == -1)
+    {
+        printf("\n");
+        exit(EXIT_SUCCESS);
+    }
+
+    if(inlen < 2)
+        return -1;
+
     input = realloc(input, sizeof(char) * (inlen+1));
     input[inlen - 1] = ' ';
     input[inlen] = 0;
 
     // make sure our command length is legal
-    if(inlen > 1337)
+    if(inlen >= 1337)
     {
         printf("illegal command length : MAX allowed length is 1337\n");
-        return inlen;
+        return -1;
     }
 
     // space, tab, string terminator
@@ -146,28 +178,27 @@ int main(int argc, char **argv)
     // according to the internet a path cant be longer than 4096 bytes 
     // i accept this arcane knowledge as absolut truth 
     char dir[4096];
-    char **choppedassembly = malloc(0);
+    char **choppedassembly = NULL;
     
     while(1)
     {
         // retrive and print current path
         getcwd(dir, 4096);
         printf("%s/: ", dir);
-        //size_t size = 
-        getinput(&choppedassembly);
+        
+        // get input and execute the command
+        if(getinput(&choppedassembly) != -1)
+            manageCommand(choppedassembly);
 
-        manageCommand(choppedassembly);
+        // collect all running processess
+        walkList(collectAll);
     }
-
-    free(*choppedassembly);
-    free(choppedassembly);
-    printf("\n");
 
     return 0;
 }
 
 /* TODO:
- * - manageCommand(); check for reservedfunctions in command (obv based on the specific function) [done]
- * - executeBackgroundProcess(); insert every background pid and command into a plist specified in main() 
- * - main(); collect finisched pid's and removed them from plist -> walkList(), waitpid(WNOHANG)
+ * - make sure every malloc is beeing cleaned up
+ * - make sure to make everything error guarded
+ * - write clean up function after ctrl + D
  */

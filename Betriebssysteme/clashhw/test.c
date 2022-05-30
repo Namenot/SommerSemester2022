@@ -4,13 +4,11 @@
 
 int main(int argc, char **argv)
 {
-
-    char s[255];
-    fgets(s, 255, stdin);
-    FILE *fp = fopen("out.txt", "w+");
-
-
-    fprintf(fp, "HAllo welt ich bin  hier");
-    fclose(fp);
+    printf("bin ich privat?\n");
+    int i = 0;
+    while(1)
+    {
+        i++;
+    }
     return 0;
 }
