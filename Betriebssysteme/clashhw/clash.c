@@ -7,17 +7,18 @@
 
 #include "plist.h"
 
-void execProcess(pid_t child, int fb, char **command);
+int printPorcesses(pid_t process, const char * process_name);
+int collectAll(pid_t process, const char * process_name);
 int manageCommand(char **command);
 size_t getinput(char ***chopper);
 char *reassembleCmd(char **command, char *output);
-int printPorcesses(pid_t process, const char * process_name);
-int collectAll(pid_t process, const char * process_name);
+void execProcess(pid_t child, int fb, char **command);
+
 
 void die(const char * msg)
 {
     perror(msg);
-    exit(3);
+    exit(EXIT_FAILURE);
 }
 
 int collectAll(pid_t process, const char * process_name)
@@ -42,11 +43,12 @@ int manageCommand(char **command)
 
     char *reservedfunctions[] = {"cd", "jobs"};
 
-    // this kills the programm
+    // switch directory
     if(strcmp(command[0], reservedfunctions[0]) == 0)
     {
         // change directory
-        chdir(command[1]);
+        if(chdir(command[1]) == -1)
+            printf("Couldnt change directory to %s\n", command[0]);
         return 0;
     }
 
@@ -64,6 +66,9 @@ int manageCommand(char **command)
         fg = 0; // tell them its a background process
 
     pid_t child = fork();
+
+    if(child < 0)
+        return -1;
 
     if(child > 0)
     {
@@ -116,15 +121,14 @@ size_t getinput(char ***chopper)
     
     // get the input
     inlen = getline(&input, &inlen, stdin);
+    
+    fflush(stdin);
 
     // if getline sees ctrl + D / eof
     if(inlen == -1)
-    {
-        printf("\n");
-        exit(EXIT_SUCCESS);
-    }
-
-    if(inlen < 2)
+        return -1;
+    
+    if(inlen < 1)
         return -1;
 
     input = realloc(input, sizeof(char) * (inlen+1));
@@ -135,7 +139,7 @@ size_t getinput(char ***chopper)
     if(inlen >= 1337)
     {
         printf("illegal command length : MAX allowed length is 1337\n");
-        return -1;
+        return 0;
     }
 
     // space, tab, string terminator
@@ -143,11 +147,23 @@ size_t getinput(char ***chopper)
 
     // init chopper to a length
     *chopper = malloc(sizeof(char*) * chopps);
+    if(*chopper == NULL) 
+    {
+        perror("couldnt allocated *chopper\n");
+        return 0;
+    }
+
     do
     {
         // make space for the new element
         chopps ++;
         *chopper = realloc(*chopper, sizeof(char*) * chopps);
+
+        if(*chopper == NULL) 
+        {
+            perror("couldnt re-allocated *chopper\n");
+            return 0;
+        }
         
         //chop up the command and the options into different strings
         choppedpiece = strtok(input, delims);
@@ -180,6 +196,8 @@ int main(int argc, char **argv)
     char dir[4096];
     char **choppedassembly = NULL;
     
+    int iStatus = 0;
+
     while(1)
     {
         // retrive and print current path
@@ -187,18 +205,29 @@ int main(int argc, char **argv)
         printf("%s/: ", dir);
         
         // get input and execute the command
-        if(getinput(&choppedassembly) != -1)
+        iStatus = getinput(&choppedassembly);
+
+        // do we have a valid command?
+        if(iStatus > 0)
             manageCommand(choppedassembly);
 
         // collect all running processess
         walkList(collectAll);
+
+        // end the shell
+        if(iStatus == -1)
+            break;
+    }
+
+    printf("\n");
+
+    if(choppedassembly != NULL)
+    {
+        for(int i = 1; choppedassembly[i] != NULL; ++i)
+            free(choppedassembly[i-1]);
+
+        free(choppedassembly);
     }
 
     return 0;
 }
-
-/* TODO:
- * - make sure every malloc is beeing cleaned up
- * - make sure to make everything error guarded
- * - write clean up function after ctrl + D
- */
