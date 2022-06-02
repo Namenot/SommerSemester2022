@@ -15,11 +15,23 @@ static struct qel {
 	struct qel *next;
 } *head;
 
-void walkList(int (*callback) (pid_t, const char *)) {
-	// TODO: implement me
+void walkList(int (*callback) (pid_t, const char *))
+{
+	struct qel *lauf = head;
+	int i = 0;
+
+	while (lauf) {
+		
+		i = callback(lauf->pid, lauf->cmdLine);
+		if(i != 0)
+			break;
+
+		lauf = lauf->next;
+	}
 }
 
 int insertElement(pid_t pid, const char *cmdLine) {
+
 	struct qel *lauf = head;
 	struct qel *schlepp = NULL;
 

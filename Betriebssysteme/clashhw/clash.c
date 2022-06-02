@@ -5,44 +5,109 @@
 #include <string.h>
 #include <sys/wait.h>
 
+#include "plist.h"
+
+int printPorcesses(pid_t process, const char * process_name);
+int collectAll(pid_t process, const char * process_name);
+int manageCommand(char **command);
+size_t getinput(char ***chopper);
+char *reassembleCmd(char **command, char *output);
+void execProcess(pid_t child, int fb, char **command);
+
+
+void die(const char * msg)
+{
+    perror(msg);
+    exit(EXIT_FAILURE);
+}
+
+int collectAll(pid_t process, const char * process_name)
+{
+    int wstatus = 0;
+    // collecting all processes
+
+    if(waitpid(process, &wstatus, WUNTRACED | WCONTINUED | WNOHANG) != 0)
+        removeElement(process, NULL, 0);
+
+    return 0;
+}
+
+int printPorcesses(pid_t process, const char * process_name)
+{
+    printf("[%d] | %s\n", process, process_name);
+    return 0;
+}
+
 int manageCommand(char **command)
 {
-    //pid_t child = fork();
+
+    char *reservedfunctions[] = {"cd", "jobs"};
+
+    // switch directory
+    if(strcmp(command[0], reservedfunctions[0]) == 0)
+    {
+        // change directory
+        if(chdir(command[1]) == -1)
+            printf("Couldnt change directory to %s\n", command[0]);
+        return 0;
+    }
+
+    //check if command is not 0
+    int i = 0;
+    for(; command[i] != NULL; ++i);
+
+    if(i == 0)
+        return 0;
+    
+    int fg = 1; // foreground command
     int wstatus = 0;
 
-    return wstatus;
-}
+    if(!strcmp(command[i-1], "&")) // is a background process?
+        fg = 0; // tell them its a background process
 
-void executeBackgroundProcess(pid_t child, char **command)
-{
-
-    if(child < 0)
-        return;
-
-    if (child == 0)
-    {
-        execvp(command[0], command);
-        exit(EXIT_SUCCESS);
-    }
-}
-
-int execForgroundProcess(char **command)
-{   
     pid_t child = fork();
-    int wstatus;
 
     if(child < 0)
         return -1;
 
-    if (child == 0)
+    if(child > 0)
     {
-        execv(command[0], command);
+        //printf("the parent is reporting that fb is : %d\n", fb);
+        char assmbledcommand[1337] = ""; // 1337 is the max string length allowed for a command
+        reassembleCmd(command, assmbledcommand);
+    
+        //add to plist
+        insertElement(child,assmbledcommand);
+
+        if(fg == 1)
+        {
+            waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
+            
+            removeElement(child, NULL, 0);
+
+            printf("Exitstatus [");
+            printf("%s", assmbledcommand);
+            printf("] = %d\n", wstatus);
+        }
+    }
+
+    if(child == 0)
+    {
+        if(fg == 0)
+            command[i-1] = NULL;
+
+        if(strcmp(command[0], reservedfunctions[1]) == 0)
+        {
+            // print processes
+            walkList(printPorcesses);
+        }
+        else
+        {
+            execvp(command[0], command);
+        }
         exit(EXIT_SUCCESS);
     }
     
-    if(child > 0)
-        waitpid(child, &wstatus, WUNTRACED | WCONTINUED);
-
     return wstatus;
 }
 
@@ -56,16 +121,25 @@ size_t getinput(char ***chopper)
     
     // get the input
     inlen = getline(&input, &inlen, stdin);
+    
+    fflush(stdin);
+
+    // if getline sees ctrl + D / eof
+    if(inlen == -1)
+        return -1;
+    
+    if(inlen < 1)
+        return -1;
 
     input = realloc(input, sizeof(char) * (inlen+1));
     input[inlen - 1] = ' ';
     input[inlen] = 0;
 
     // make sure our command length is legal
-    if(inlen > 1337)
+    if(inlen >= 1337)
     {
         printf("illegal command length : MAX allowed length is 1337\n");
-        return inlen;
+        return 0;
     }
 
     // space, tab, string terminator
@@ -73,11 +147,23 @@ size_t getinput(char ***chopper)
 
     // init chopper to a length
     *chopper = malloc(sizeof(char*) * chopps);
+    if(*chopper == NULL) 
+    {
+        perror("couldnt allocated *chopper\n");
+        return 0;
+    }
+
     do
     {
         // make space for the new element
         chopps ++;
         *chopper = realloc(*chopper, sizeof(char*) * chopps);
+
+        if(*chopper == NULL) 
+        {
+            perror("couldnt re-allocated *chopper\n");
+            return 0;
+        }
         
         //chop up the command and the options into different strings
         choppedpiece = strtok(input, delims);
@@ -108,33 +194,40 @@ int main(int argc, char **argv)
     // according to the internet a path cant be longer than 4096 bytes 
     // i accept this arcane knowledge as absolut truth 
     char dir[4096];
-    char **choppedassembly = malloc(0);
-
-    //pid_t *zombies;
-    //int zombieCount = 0;
+    char **choppedassembly = NULL;
     
+    int iStatus = 0;
+
     while(1)
     {
         // retrive and print current path
         getcwd(dir, 4096);
         printf("%s/: ", dir);
-        //size_t size = 
-        getinput(&choppedassembly);
-
-        int execstat = execForgroundProcess(choppedassembly);
-
-        printf("Exitstatus [");
-
-        char assmbledcommand[] = "";
-        reassembleCmd(choppedassembly, assmbledcommand);
-        printf("%s", assmbledcommand);
         
-        printf("] = %d\n", execstat);
+        // get input and execute the command
+        iStatus = getinput(&choppedassembly);
+
+        // do we have a valid command?
+        if(iStatus > 0)
+            manageCommand(choppedassembly);
+
+        // collect all running processess
+        walkList(collectAll);
+
+        // end the shell
+        if(iStatus == -1)
+            break;
     }
 
-    free(*choppedassembly);
-    free(choppedassembly);
     printf("\n");
+
+    if(choppedassembly != NULL)
+    {
+        for(int i = 1; choppedassembly[i] != NULL; ++i)
+            free(choppedassembly[i-1]);
+
+        free(choppedassembly);
+    }
 
     return 0;
 }
